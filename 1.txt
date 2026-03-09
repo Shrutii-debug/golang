@@ -10,3 +10,58 @@ what you see on the screen is the code
 5. what is missing? no try catch, lexer does a lot of work
 we will know more about this later on
 
+TYPES IN GOLANG
+case sensitive; almost
+Variable type should be known in advance
+almost everything in golang is a type
+
+String
+Bool
+Integer- uint8, uint64, int8, int64, unintptr
+Floating- float32, float64
+complex
+
+ARRAY
+SLICES
+MAPS
+STRUCTS
+POINTERS
+
+
+VARIABLES, TYPES AND CONSTANTS
+
+uint8    the set of all unsigned 8-bit integers (0 to 255)
+uint16   the set of all unsigned 16-bit integers (0 to 65535)
+uint32   the set of all unsigned 32-bit integers (0 to 4294967295)
+uint64   the set of all unsigned 64-bit integers (0 to 18446744073709551615)
+
+int8     the set of all signed 8-bit integers (-128 to 127)
+int16    the set of all signed 16-bit integers (-32768 to 32767)
+int32    the set of all signed 32-bit integers (-2147483648 to 2147483647)
+int64    the set of all signed 64-bit integers (-9223372036854775808 to 9223372036854775807)
+
+float32  the set of all IEEE-754 32-bit floating-point numbers
+float64  the set of all IEEE-754 64-bit floating-point numbers
+
+complex64   the set of all complex numbers with float32 real and imaginary parts
+complex128  the set of all complex numbers with float64 real and imaginary parts
+
+byte    alias for uint8
+rune    alias for int32
+
+uint has 32 0r 64 bits
+int has the same size as uint
+
+
+-------------------------MEMORY MANAGEMENT IN GOLANG--------------------------------------------
+
+memory allocation and deallocation happens automatically
+we use two methods :- new() and make()
+majority of the cases make() will be used
+
+new() - allocates memory but no INIT(initialized)                make()- allocate memory and INIT(initialized)
+        zeroed storage                                              non-zeroed storage
+        you will get a memory address                                you will get a memory address
+
+
+Garbage collection happens automatically. Anything that becomes out of scope or nil is eligible for gc

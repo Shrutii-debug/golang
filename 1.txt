@@ -1,0 +1,12 @@
+1.  GO is a compiled language. Go tool can run file directly, without Virtual machine
+
+2. executables are different for OS
+
+3. Go can be used from system apps to web apps- cloud
+
+4. go is object oriented? yes and no
+what you see on the screen is the code
+
+5. what is missing? no try catch, lexer does a lot of work
+we will know more about this later on
+

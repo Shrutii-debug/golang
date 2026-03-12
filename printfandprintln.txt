@@ -1,0 +1,224 @@
+In Go, fmt.Printf and fmt.Println behave differently because they are meant for different purposes.
+
+fmt.Println → prints values in a default readable format
+
+fmt.Printf → prints values using format specifiers
+
+Because of this, sometimes they produce different outputs.
+
+1️⃣ fmt.Println
+
+Println simply prints the values separated by spaces and adds a newline.
+
+package main
+import "fmt"
+
+func main() {
+    x := 10
+    fmt.Println("Value:", x)
+}
+
+Output
+
+Value: 10
+
+Key behavior:
+
+automatically adds spaces
+
+automatically adds newline
+
+2️⃣ fmt.Printf
+
+Printf uses format specifiers.
+
+package main
+import "fmt"
+
+func main() {
+    x := 10
+    fmt.Printf("Value: %d", x)
+}
+
+Output
+
+Value: 10
+
+But notice:
+
+no automatic newline
+
+formatting is controlled by % specifiers
+
+3️⃣ Example Where Results Look Different
+package main
+import "fmt"
+
+func main() {
+    fmt.Println("Hello", "World")
+    fmt.Printf("Hello", "World")
+}
+
+Output
+
+Hello World
+Hello
+
+Why?
+
+Because Printf does not automatically print arguments unless format specifiers are used.
+
+Correct version:
+
+fmt.Printf("%s %s", "Hello", "World")
+4️⃣ Common Format Specifiers
+Specifier	Meaning
+%d	integer
+%f	float
+%s	string
+%v	default format
+%T	type of variable
+
+Example:
+
+x := 10
+fmt.Printf("Value=%d Type=%T", x, x)
+
+Output
+
+Value=10 Type=int
+5️⃣ Another Difference Example
+x := 3.14159
+
+fmt.Println(x)
+fmt.Printf("%.2f", x)
+
+Output
+
+3.14159
+3.14
+
+Why?
+
+Printf controls decimal precision using formatting
+
+In your code:
+
+finalJson, err := json.Marshal(lcoCourses)
+fmt.Printf("%s\n", finalJson)
+
+The important thing to understand is what json.Marshal() returns.
+
+1️⃣ What json.Marshal() Returns
+
+json.Marshal() returns:
+
+[]byte
+
+That means:
+
+finalJson → []byte
+
+Example internally:
+
+[91 123 34 78 97 109 101 ...]
+
+Those numbers are ASCII byte values.
+
+2️⃣ When You Use fmt.Println(finalJson)
+
+If you write:
+
+fmt.Println(finalJson)
+
+Go prints the slice directly, so it shows the byte values.
+
+Example:
+
+[123 34 78 97 109 101 34 58 34 82 101 97 99 116 ...]
+
+Because Println prints the actual data structure.
+
+So Go thinks:
+
+[]byte → slice of integers
+
+So it prints numbers.
+
+3️⃣ When You Use fmt.Printf("%s", finalJson)
+
+Here %s tells Go:
+
+Interpret these bytes as a string.
+
+So Go converts:
+
+[]byte → string
+
+Now it prints actual JSON.
+
+Output becomes:
+
+[{"Name":"ReactJS Bootcamp","Price":299,...}]
+4️⃣ Simple Demonstration
+
+Example program:
+
+package main
+import "fmt"
+
+func main() {
+    data := []byte("hello")
+
+    fmt.Println(data)
+    fmt.Printf("%s\n", data)
+}
+
+Output:
+
+[104 101 108 108 111]
+hello
+
+Because:
+
+Function	Behavior
+Println	prints slice values
+Printf("%s")	converts bytes to string
+5️⃣ Another Correct Way (Very Common)
+
+Instead of %s, many Go developers write:
+
+fmt.Println(string(finalJson))
+
+This explicitly converts:
+
+[]byte → string
+
+Example:
+
+fmt.Println(string(finalJson))
+
+Output:
+
+[{"Name":"ReactJS Bootcamp","Price":299,...}]
+6️⃣ Quick Rule (Important for Go)
+
+When working with JSON in Go:
+
+Marshal → []byte
+Unmarshal → struct
+
+So to print JSON properly:
+
+fmt.Println(string(jsonBytes))
+
+or
+
+fmt.Printf("%s", jsonBytes)
+
+✅ In short
+
+Code	Output
+fmt.Println(finalJson)	byte numbers
+fmt.Printf("%s", finalJson)	JSON text
+fmt.Println(string(finalJson))	JSON text

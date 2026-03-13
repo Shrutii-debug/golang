@@ -1,0 +1,420 @@
+1. Package Declaration
+package main
+What it means
+
+This file belongs to the main package.
+
+Intuition
+
+In Go, programs are organized into packages.
+The main package is special because:
+
+Go compiler looks for main.main()
+
+and starts execution there.
+
+So:
+
+package main → executable program
+2. Imports
+import (
+	"encoding/json"
+	"fmt"
+	"log"
+	"math/rand"
+	"net/http"
+	"strconv"
+	"time"
+
+	"github.com/gorilla/mux"
+)
+Intuition
+
+Your program needs tools. These tools come from packages.
+
+Package	Why we need it
+encoding/json	convert Go structs ↔ JSON
+fmt	printing logs
+log	log errors
+math/rand	generate random IDs
+net/http	run HTTP server
+strconv	convert int → string
+time	seed randomness
+mux	advanced router
+3. Course Struct (Model)
+type Course struct{
+	CourseId string `json:"courseid"`
+	CourseName string `json:"coursename"`
+	CoursePrice int `json:"price"`
+	Author *Author `json:"author"`
+}
+Intuition
+
+A struct represents a data model.
+
+Here you are modelling a course entity.
+
+Example:
+
+Course
+ ├── id
+ ├── name
+ ├── price
+ └── author
+
+Equivalent JSON:
+
+{
+  "courseid": "2",
+  "coursename": "ReactJS",
+  "price": 299,
+  "author": {}
+}
+Struct tags
+`json:"courseid"`
+
+Intuition:
+
+Go field name → JSON field name
+
+Without this:
+
+CourseId → CourseId
+
+With tag:
+
+CourseId → courseid
+
+This matches frontend expectations.
+
+4. Pointer Author
+Author *Author
+Intuition
+
+This means:
+
+Course → contains reference to Author
+
+Instead of copying Author object.
+
+Memory idea:
+
+Course
+  |
+  → pointer → Author
+
+Advantages:
+
+avoids copying data
+
+optional field possible
+
+flexible structure
+
+5. Author Struct
+type Author struct{
+	Fullname string `json:"fullname"`
+	Website string `json:"website"`
+}
+
+Represents nested JSON.
+
+Example:
+
+{
+ "author":{
+   "fullname":"Shruti",
+   "website":"lco.dev"
+ }
+}
+6. Fake Database
+var courses []Course
+Intuition
+
+This is a slice of Course objects.
+
+Think of it as a temporary database.
+
+courses = [
+  Course1,
+  Course2,
+  Course3
+]
+
+Real production uses:
+
+PostgreSQL
+MongoDB
+MySQL
+7. Method on Course
+func (c *Course)isEmpty() bool {
+	return c.CourseName == ""
+}
+Intuition
+
+You attached a method to Course struct.
+
+Receiver:
+
+(c *Course)
+
+means:
+
+this function operates on Course
+
+Usage:
+
+course.isEmpty()
+
+Meaning:
+
+is this course valid?
+8. main() Function
+func main() {
+Intuition
+
+Execution starts here.
+
+Think:
+
+Program bootstrapping
+9. Print Message
+fmt.Printf(" APIs")
+
+Just prints startup message.
+
+Usually:
+
+Server starting...
+10. Router Creation
+r := mux.NewRouter()
+Intuition
+
+Router maps:
+
+URL → function
+
+Example:
+
+/courses → getAllCourses()
+
+Without router:
+
+Server wouldn't know which code to run.
+
+11. Seeding Data
+courses = append(courses, Course{...})
+Intuition
+
+Adds sample data.
+
+Think:
+
+insert into database
+
+Now slice looks like:
+
+courses = [
+  ReactJS course,
+  MERN course
+]
+12. Routing
+r.HandleFunc("/", serveHome).Methods("GET")
+
+Meaning:
+
+GET /
+→ serveHome()
+Other routes
+GET    /courses
+GET    /course/{id}
+POST   /course
+PUT    /course/{id}
+DELETE /course/{id}
+
+This is REST API design.
+
+13. Start Server
+log.Fatal(http.ListenAndServe(":4000", r))
+Intuition
+
+Start server:
+
+port = 4000
+router = r
+
+Access:
+
+http://localhost:4000
+14. serveHome()
+func serveHome(w http.ResponseWriter, r *http.Request)
+
+Every handler has this signature.
+
+w → response writer
+r → request data
+Response
+w.Write([]byte("<h1>Welcome to APIs </h1>"))
+
+Writes HTML to browser.
+
+15. getAllCourses()
+json.NewEncoder(w).Encode(courses)
+Intuition
+
+Convert Go slice → JSON.
+
+Example response:
+
+[
+ {
+  "courseid":"2",
+  "coursename":"ReactJS"
+ }
+]
+16. getOneCourse()
+Extract ID
+params := mux.Vars(r)
+
+Request:
+
+GET /course/4
+
+Now:
+
+params["id"] = "4"
+Loop
+for _, course := range courses
+
+Meaning:
+
+iterate through slice
+Match ID
+if course.CourseId == params["id"]
+
+If found → return course.
+
+17. createOneCourse()
+
+This handles:
+
+POST /course
+Decode JSON
+json.NewDecoder(r.Body).Decode(&course)
+
+Example request:
+
+{
+ "coursename":"Go",
+ "price":499
+}
+
+Converted into struct.
+
+Validate
+if course.isEmpty()
+
+Checks empty data.
+
+Generate ID
+rand.Seed(time.Now().UnixNano())
+course.CourseId = strconv.Itoa(rand.Intn(100))
+
+Steps:
+
+seed random generator
+generate random number
+convert int → string
+
+Example:
+
+47 → "47"
+Insert
+courses = append(courses, course)
+
+Add new course.
+
+18. updateOneCourse()
+Extract ID
+params := mux.Vars(r)
+Find course
+for index, course := range courses
+Remove old course
+courses = append(courses[:index], courses[index+1:]...)
+Intuition
+
+Remove element from slice.
+
+Example:
+
+[A B C D]
+remove B
+
+[A C D]
+Decode new data
+json.NewDecoder(r.Body).Decode(&course)
+Preserve ID
+course.CourseId = params["id"]
+Insert updated version
+append(courses, course)
+19. deleteOneCourse()
+
+Find matching ID.
+
+Remove element from slice.
+
+courses = append(courses[:index], courses[index+1:]...)
+
+Now record disappears.
+
+Big Backend Idea
+
+Your program implements CRUD API.
+
+Operation	HTTP	Function
+Create	POST	createOneCourse
+Read	GET	getOneCourse
+Update	PUT	updateOneCourse
+Delete	DELETE	deleteOneCourse
+Real Backend Improvements
+
+In real production:
+
+1. Database
+
+Use:
+
+PostgreSQL
+MongoDB
+2. UUID IDs
+
+Instead of:
+
+rand.Intn(100)
+
+Use:
+
+uuid.New()
+3. Validation
+
+Use libraries:
+
+validator
+4. Error Handling
+
+Never ignore errors.
+
+Most Important Concepts You Used
+
+You just practiced:
+
+structs
+methods
+slices
+JSON encoding
+HTTP server
+REST APIs
+routing
+URL params
+
+This is core Go backend knowledge.
